@@ -16,6 +16,7 @@ s3_client = boto3.client(
     aws_access_key_id=st.secrets["my_aws_key"],
     aws_secret_access_key=st.secrets["my_aws_secret"]
 )
+
 try:
     # Fetch the object from S3
     response = s3_client.get_object(Bucket=st.secrets["bucket_name"], Key="feedback_updated.json")
@@ -28,11 +29,6 @@ try:
 
     # Extract feedback messages
     feedback_list = [item['feedback'] for item in data]
-
-    # Display the feedback messages
-    st.subheader("Extracted Feedback Messages")
-    for i, feedback in enumerate(feedback_list, start=1):
-        st.write(f"{i}. {feedback.strip().capitalize()}")
 
     # Convert to a DataFrame
     feedback_data = pd.DataFrame(feedback_list, columns=["feedback"])
@@ -49,10 +45,6 @@ try:
 
     feedback_data["Sentiment"] = feedback_data["feedback"].apply(get_sentiment)
 
-    # Display DataFrame
-    st.subheader("Feedback with Sentiments")
-    st.write(feedback_data)
-
     # Sentiment Counts
     sentiment_counts = feedback_data["Sentiment"].value_counts()
 
@@ -65,12 +57,20 @@ try:
         startangle=90,
         wedgeprops=dict(width=0.4)
     )
-
     ax.set_title("Sentiment Analysis")
     plt.setp(autotexts, size=10, weight="bold")
 
     # Display Chart
     st.pyplot(fig)
+
+    # Display DataFrame
+    st.subheader("Feedback with Sentiments")
+    st.write(feedback_data)
+
+    # Display Feedback Messages
+    st.subheader("Extracted Feedback Messages")
+    for i, feedback in enumerate(feedback_list, start=1):
+        st.write(f"{i}. {feedback.strip().capitalize()}")
 
 except Exception as e:
     st.error(f"An error occurred: {e}")
