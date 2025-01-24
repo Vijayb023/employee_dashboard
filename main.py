@@ -8,7 +8,7 @@ from botocore.exceptions import ClientError
 
 # Cognito configuration
 client_id = "7dbc9lthqi1ennc4kaokrdc0r6"  # Replace with the Cognito client ID from App.js
-logout_uri = "https://www.vijaypb.com/"  # Replace with your app's home URL
+logout_uri = "https://www.vijaypb.com/"  # Replace with your desired redirect URL
 cognito_domain = "https://us-east-1giqb6zif8.auth.us-east-1.amazoncognito.com"  # Replace with the Cognito domain from App.js
 
 # Construct the logout URL
@@ -24,9 +24,13 @@ def clear_session_and_logout():
     st.cache_data.clear()  # Clears cached data functions
     st.cache_resource.clear()  # Clears cached resources (if used)
 
-    # Redirect to Cognito logout URL
-    st.write("Redirecting to sign-out...")
-    st.markdown(f'<meta http-equiv="refresh" content="0; url={logout_url}" />', unsafe_allow_html=True)
+    # Perform a hard redirect using JavaScript
+    redirect_script = f"""
+        <script>
+            window.location.href = "{logout_url}";
+        </script>
+    """
+    st.markdown(redirect_script, unsafe_allow_html=True)
 
 # Title and Description
 st.title("Sentiment Analysis App")
