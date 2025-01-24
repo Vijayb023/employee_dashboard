@@ -14,27 +14,25 @@ cognito_domain = "https://us-east-1giqb6zif8.auth.us-east-1.amazoncognito.com"  
 # Construct the logout URL
 logout_url = f"{cognito_domain}/logout?client_id={client_id}&logout_uri={logout_uri}"
 
-# Clear session, cache, and redirect to logout URL
+# Clear session, cache, and perform hard redirect
 def clear_session_and_logout():
-    # Clear session state (e.g., tokens or user data)
+    # Clear Streamlit session state
     for key in st.session_state.keys():
         del st.session_state[key]
     
     # Clear Streamlit cache
-    st.cache_data.clear()  # Clear cached data
-    st.cache_resource.clear()  # Clear cached resources
+    st.cache_data.clear()
+    st.cache_resource.clear()
 
-    # Perform a hard redirect to the logout URI
-    st.write("Signing you out...")
-    st.stop()  # Stop Streamlit script execution
-    js_redirect = f"""
+    # Use HTML meta refresh for a hard redirect
+    redirect_html = f"""
+        <meta http-equiv="refresh" content="0; url={logout_uri}" />
         <script>
-            window.localStorage.clear();  // Optional: Clear local storage
-            window.sessionStorage.clear();  // Optional: Clear session storage
             window.location.href = "{logout_uri}";
         </script>
     """
-    st.markdown(js_redirect, unsafe_allow_html=True)
+    st.markdown(redirect_html, unsafe_allow_html=True)
+    st.stop()  # Stop further execution
 
 # Title and Description
 st.title("Sentiment Analysis App")
