@@ -34,29 +34,31 @@ def clear_session_and_logout():
     """
     st.markdown(js_redirect, unsafe_allow_html=True)
 
-# Title and Description
-st.title("Sentiment Analysis App")
-st.write("This app analyzes sentiment from a JSON file stored in S3 and displays a donut chart.")
+# Initialize session state for the modal
+if "show_signout_modal" not in st.session_state:
+    st.session_state["show_signout_modal"] = False
 
-# Sign Out Popup Modal
-def sign_out_popup():
-    with st.modal("Sign Out", closable=True) as modal:
-        st.subheader("Confirm Sign Out")
-        st.write("Are you sure you want to sign out? You will be redirected to the home page.")
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("Yes, Sign Out"):
-                clear_session_and_logout()
-                st.stop()  # Stop Streamlit script execution
-        
-        with col2:
-            if st.button("Cancel"):
-                st.write("Sign-out canceled.")
+# Sign Out Popup Logic
+def show_sign_out_modal():
+    st.write("### Confirm Sign Out")
+    st.write("Are you sure you want to sign out? You will be redirected to the home page.")
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Yes, Sign Out"):
+            clear_session_and_logout()
+            st.stop()  # Stop Streamlit script execution
+    with col2:
+        if st.button("Cancel"):
+            st.session_state["show_signout_modal"] = False  # Hide the modal
 
 # Sidebar Sign Out Button
 if st.sidebar.button("Sign Out"):
-    sign_out_popup()
+    st.session_state["show_signout_modal"] = True
+
+# Render the modal if it's set to show
+if st.session_state["show_signout_modal"]:
+    st.write("## Sign Out Confirmation")
+    show_sign_out_modal()
 
 # Initialize S3 client using Streamlit secrets
 s3_client = boto3.client(
