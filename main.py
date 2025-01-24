@@ -7,30 +7,28 @@ import boto3
 from botocore.exceptions import ClientError
 
 # Cognito configuration
-client_id = "7dbc9lthqi1ennc4kaokrdc0r6"  # Replace with your Cognito client ID
-logout_uri = "https://www.vijaypb.com/"  # Replace with your desired redirect URL
-cognito_domain = "https://us-east-1giqb6zif8.auth.us-east-1.amazoncognito.com"  # Replace with your Cognito domain
+client_id = "7dbc9lthqi1ennc4kaokrdc0r6"  # Cognito client ID
+logout_uri = "https://www.vijaypb.com/"  # Redirect URL after logout
+cognito_domain = "https://us-east-1giqb6zif8.auth.us-east-1.amazoncognito.com"  # Cognito domain
 
 # Construct the logout URL
 logout_url = f"{cognito_domain}/logout?client_id={client_id}&logout_uri={logout_uri}"
 
 # Clear session, cache, and redirect to logout URL
 def clear_session_and_logout():
-    # Clear Streamlit session state
+    # Clear session state (e.g., tokens or user data)
     for key in st.session_state.keys():
         del st.session_state[key]
-
+    
     # Clear Streamlit cache
-    st.cache_data.clear()  # Clears cached data
-    st.cache_resource.clear()  # Clears cached resources
+    st.cache_data.clear()  # Clear cached data
+    st.cache_resource.clear()  # Clear cached resources
 
-    # Display a message and trigger a hard redirect
-    st.write("Signing you out...")
-    st.stop()  # Stop the Streamlit script to avoid further execution
-
-    # Trigger a hard redirect to the Cognito logout URL
+    # JavaScript to perform a hard redirect
     js_redirect = f"""
         <script>
+            window.localStorage.clear();  // Clear any localStorage (optional for stored tokens)
+            window.sessionStorage.clear();  // Clear sessionStorage (optional for tokens)
             window.location.replace("{logout_url}");
         </script>
     """
@@ -40,9 +38,25 @@ def clear_session_and_logout():
 st.title("Sentiment Analysis App")
 st.write("This app analyzes sentiment from a JSON file stored in S3 and displays a donut chart.")
 
-# Sign Out Button
+# Sign Out Popup Modal
+def sign_out_popup():
+    with st.modal("Sign Out", closable=True) as modal:
+        st.subheader("Confirm Sign Out")
+        st.write("Are you sure you want to sign out? You will be redirected to the home page.")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Yes, Sign Out"):
+                clear_session_and_logout()
+                st.stop()  # Stop Streamlit script execution
+        
+        with col2:
+            if st.button("Cancel"):
+                st.write("Sign-out canceled.")
+
+# Sidebar Sign Out Button
 if st.sidebar.button("Sign Out"):
-    clear_session_and_logout()
+    sign_out_popup()
 
 # Initialize S3 client using Streamlit secrets
 s3_client = boto3.client(
