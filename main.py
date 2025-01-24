@@ -12,7 +12,7 @@ logout_uri = "https://www.vijaypb.com/"  # Redirect URL after logout
 # Clear session, cache, and tokens
 def clear_session_and_cache():
     # Clear Streamlit session state
-    for key in st.session_state.keys():
+    for key in list(st.session_state.keys()):
         del st.session_state[key]
 
     # Clear Streamlit cache
@@ -21,22 +21,41 @@ def clear_session_and_cache():
 
     st.write("All tokens and cache have been cleared.")
 
+# Generate a styled logout link
+def styled_logout_button():
+    logout_html = f"""
+    <style>
+        .logout-btn {{
+            display: inline-block;
+            background-color: #FF4B4B;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+            text-align: center;
+        }}
+        .logout-btn:hover {{
+            background-color: #D43F3F;
+        }}
+    </style>
+    <a href="{logout_uri}" class="logout-btn" target="_self" onclick="localStorage.clear(); sessionStorage.clear();">
+        Sign Out
+    </a>
+    """
+    st.sidebar.markdown(logout_html, unsafe_allow_html=True)
+
 # Title and Description
 st.title("Sentiment Analysis App")
 st.write("This app analyzes sentiment from a JSON file stored in S3 and displays a donut chart.")
 
-# Sidebar Link Button
+# Sidebar Actions
 st.sidebar.header("Actions")
 if st.sidebar.button("Clear Tokens and Cache"):
     clear_session_and_cache()
 
-# Add a link button to redirect to `https://www.vijaypb.com/`
-st.sidebar.link_button(
-    label="Go to Home Page",
-    url=logout_uri,
-    help="Click to go to the home page",
-    type="primary",  # Style as a primary button
-)
+# Add the styled logout button to the sidebar
+styled_logout_button()
 
 # Initialize S3 client using Streamlit secrets
 s3_client = boto3.client(
