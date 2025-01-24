@@ -7,9 +7,9 @@ import boto3
 from botocore.exceptions import ClientError
 
 # Cognito configuration
-client_id = "7dbc9lthqi1ennc4kaokrdc0r6"  # Replace with the Cognito client ID from App.js
+client_id = "7dbc9lthqi1ennc4kaokrdc0r6"  # Replace with your Cognito client ID
 logout_uri = "https://www.vijaypb.com/"  # Replace with your desired redirect URL
-cognito_domain = "https://us-east-1giqb6zif8.auth.us-east-1.amazoncognito.com"  # Replace with the Cognito domain from App.js
+cognito_domain = "https://us-east-1giqb6zif8.auth.us-east-1.amazoncognito.com"  # Replace with your Cognito domain
 
 # Construct the logout URL
 logout_url = f"{cognito_domain}/logout?client_id={client_id}&logout_uri={logout_uri}"
@@ -19,18 +19,22 @@ def clear_session_and_logout():
     # Clear Streamlit session state
     for key in st.session_state.keys():
         del st.session_state[key]
-    
-    # Clear Streamlit cache
-    st.cache_data.clear()  # Clears cached data functions
-    st.cache_resource.clear()  # Clears cached resources (if used)
 
-    # Perform a hard redirect using JavaScript
-    redirect_script = f"""
+    # Clear Streamlit cache
+    st.cache_data.clear()  # Clears cached data
+    st.cache_resource.clear()  # Clears cached resources
+
+    # Display a message and trigger a hard redirect
+    st.write("Signing you out...")
+    st.stop()  # Stop the Streamlit script to avoid further execution
+
+    # Trigger a hard redirect to the Cognito logout URL
+    js_redirect = f"""
         <script>
-            window.location.href = "{logout_url}";
+            window.location.replace("{logout_url}");
         </script>
     """
-    st.markdown(redirect_script, unsafe_allow_html=True)
+    st.markdown(js_redirect, unsafe_allow_html=True)
 
 # Title and Description
 st.title("Sentiment Analysis App")
