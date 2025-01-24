@@ -6,11 +6,16 @@ import matplotlib.pyplot as plt
 import boto3
 from botocore.exceptions import ClientError
 
-# Cognito configuration
+# Cognito logout configurations
+client_id = "7dbc9lthqi1ennc4kaokrdc0r6"  # Cognito client ID
 logout_uri = "https://www.vijaypb.com/"  # Redirect URL after logout
+cognito_domain = "https://us-east-1giqb6zif8.auth.us-east-1.amazoncognito.com"  # Cognito domain
 
-# Clear session, cache, and tokens, and redirect to the home page
-def clear_and_redirect():
+# Construct the Cognito logout URL
+cognito_logout_url = f"{cognito_domain}/logout?client_id={client_id}&logout_uri={logout_uri}"
+
+# Clear session, cache, and tokens
+def clear_session_and_cache():
     # Clear Streamlit session state
     for key in st.session_state.keys():
         del st.session_state[key]
@@ -19,25 +24,29 @@ def clear_and_redirect():
     st.cache_data.clear()
     st.cache_resource.clear()
 
-    # Redirect using st.markdown with a hard link
-    st.markdown(
-        f"""
-        <meta http-equiv="refresh" content="0; url={logout_uri}" />
-        <script>
-            window.location.href = "{logout_uri}";
-        </script>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.stop()  # Stop further execution after redirect
+    st.write("All tokens, session data, and cache have been cleared.")
 
 # Title and Description
 st.title("Sentiment Analysis App")
 st.write("This app analyzes sentiment from a JSON file stored in S3 and displays a donut chart.")
 
-# Add the "Go to Home Page" button
-if st.sidebar.button("Go to Home Page"):
-    clear_and_redirect()
+# Sidebar Actions
+st.sidebar.header("Actions")
+
+# Button to clear session and cache, and log out through Cognito
+if st.sidebar.button("Log Out"):
+    clear_session_and_cache()
+    # Redirect to Cognito logout URL
+    st.markdown(
+        f"""
+        <meta http-equiv="refresh" content="0; url={cognito_logout_url}" />
+        <script>
+            window.location.href = "{cognito_logout_url}";
+        </script>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.stop()  # Stop further execution
 
 # Initialize S3 client using Streamlit secrets
 s3_client = boto3.client(
