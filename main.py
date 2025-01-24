@@ -6,9 +6,22 @@ import matplotlib.pyplot as plt
 import boto3
 from botocore.exceptions import ClientError
 
+# Cognito sign-out configuration
+client_id = "3q22oe7pi72qb295judopg3b02"  # Replace with your Cognito client ID
+logout_uri = "https://your-app-home-url/"  # Replace with your app's home URL
+cognito_domain = "https://us-east-1znp7uime6.auth.us-east-1.amazoncognito.com"  # Replace with your Cognito domain
+
+# Construct the logout URL
+logout_url = f"{cognito_domain}/logout?client_id={client_id}&logout_uri={logout_uri}"
+
 # Title and Description
 st.title("Sentiment Analysis App")
 st.write("This app analyzes sentiment from a JSON file stored in S3 and displays a donut chart.")
+
+# Sign Out Button
+if st.sidebar.button("Sign Out"):
+    st.write("Redirecting to sign-out...")
+    st.markdown(f'<meta http-equiv="refresh" content="0; url={logout_url}" />', unsafe_allow_html=True)
 
 # Initialize S3 client using Streamlit secrets
 s3_client = boto3.client(
