@@ -9,13 +9,9 @@ from botocore.exceptions import ClientError
 # Cognito configuration
 client_id = "7dbc9lthqi1ennc4kaokrdc0r6"  # Cognito client ID
 logout_uri = "https://www.vijaypb.com/"  # Redirect URL after logout
-cognito_domain = "https://us-east-1giqb6zif8.auth.us-east-1.amazoncognito.com"  # Cognito domain
 
-# Construct the logout URL
-logout_url = f"{cognito_domain}/logout?client_id={client_id}&logout_uri={logout_uri}"
-
-# Clear session, cache, and perform hard redirect
-def clear_session_and_logout():
+# Clear session, cache, and tokens
+def clear_session_and_cache():
     # Clear Streamlit session state
     for key in st.session_state.keys():
         del st.session_state[key]
@@ -24,24 +20,26 @@ def clear_session_and_logout():
     st.cache_data.clear()
     st.cache_resource.clear()
 
-    # Use JavaScript for a hard redirect
-    st.markdown(
-        f"""
-        <script>
-            window.location.href = "{logout_uri}";
-        </script>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.stop()  # Stop further script execution
+    # Optionally, log any token clearance logic here
+    st.write("All tokens and cache cleared.")
 
 # Title and Description
 st.title("Sentiment Analysis App")
 st.write("This app analyzes sentiment from a JSON file stored in S3 and displays a donut chart.")
 
-# Sidebar Sign Out Button
+# Sidebar Redirect Link
 if st.sidebar.button("Sign Out"):
-    clear_session_and_logout()
+    clear_session_and_cache()
+    st.markdown(
+        f"""
+        <a href="{logout_uri}" target="_self" style="text-decoration:none;">
+            <button style="background-color:#f44336; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;">
+                Go to Home Page
+            </button>
+        </a>
+        """,
+        unsafe_allow_html=True,
+    )
 
 # Initialize S3 client using Streamlit secrets
 s3_client = boto3.client(
