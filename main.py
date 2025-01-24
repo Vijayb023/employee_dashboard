@@ -14,11 +14,15 @@ cognito_domain = "https://us-east-1giqb6zif8.auth.us-east-1.amazoncognito.com"  
 # Construct the logout URL
 logout_url = f"{cognito_domain}/logout?client_id={client_id}&logout_uri={logout_uri}"
 
-# Clear session and tokens
+# Clear session, cache, and redirect to logout URL
 def clear_session_and_logout():
     # Clear Streamlit session state
     for key in st.session_state.keys():
         del st.session_state[key]
+    
+    # Clear Streamlit cache
+    st.cache_data.clear()  # Clears cached data functions
+    st.cache_resource.clear()  # Clears cached resources (if used)
 
     # Redirect to Cognito logout URL
     st.write("Redirecting to sign-out...")
@@ -39,7 +43,9 @@ s3_client = boto3.client(
     aws_secret_access_key=st.secrets["my_aws_secret"]
 )
 
-try:
+# Cache the function to fetch and process data from S3
+@st.cache_data
+def fetch_feedback_data():
     # Fetch the object from S3
     response = s3_client.get_object(Bucket=st.secrets["bucket_name"], Key="feedback_updated.json")
 
@@ -67,6 +73,12 @@ try:
 
     feedback_data["Sentiment"] = feedback_data["feedback"].apply(get_sentiment)
 
+    return feedback_data
+
+try:
+    # Fetch and process the data
+    feedback_data = fetch_feedback_data()
+
     # Sentiment Counts
     sentiment_counts = feedback_data["Sentiment"].value_counts()
 
@@ -91,7 +103,7 @@ try:
 
     # Display Feedback Messages
     st.subheader("Extracted Feedback Messages")
-    for i, feedback in enumerate(feedback_list, start=1):
+    for i, feedback in enumerate(feedback_data["feedback"], start=1):
         st.write(f"{i}. {feedback.strip().capitalize()}")
 
 except Exception as e:
