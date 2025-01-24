@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 import boto3
 from botocore.exceptions import ClientError
 
-# Cognito sign-out configuration
-client_id = "3q22oe7pi72qb295judopg3b02"  # Replace with your Cognito client ID
-logout_uri = "https://your-app-home-url/"  # Replace with your app's home URL
-cognito_domain = "https://us-east-1znp7uime6.auth.us-east-1.amazoncognito.com"  # Replace with your Cognito domain
+# Cognito configuration
+client_id = "7dbc9lthqi1ennc4kaokrdc0r6"  # Replace with the Cognito client ID from App.js
+logout_uri = "https://www.vijaypb.com/"  # Replace with your app's home URL
+cognito_domain = "https://us-east-1giqb6zif8.auth.us-east-1.amazoncognito.com"  # Replace with the Cognito domain from App.js
 
 # Construct the logout URL
 logout_url = f"{cognito_domain}/logout?client_id={client_id}&logout_uri={logout_uri}"
