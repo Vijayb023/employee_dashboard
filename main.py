@@ -14,14 +14,23 @@ cognito_domain = "https://us-east-1giqb6zif8.auth.us-east-1.amazoncognito.com"  
 # Construct the logout URL
 logout_url = f"{cognito_domain}/logout?client_id={client_id}&logout_uri={logout_uri}"
 
+# Clear session and tokens
+def clear_session_and_logout():
+    # Clear Streamlit session state
+    for key in st.session_state.keys():
+        del st.session_state[key]
+
+    # Redirect to Cognito logout URL
+    st.write("Redirecting to sign-out...")
+    st.markdown(f'<meta http-equiv="refresh" content="0; url={logout_url}" />', unsafe_allow_html=True)
+
 # Title and Description
 st.title("Sentiment Analysis App")
 st.write("This app analyzes sentiment from a JSON file stored in S3 and displays a donut chart.")
 
 # Sign Out Button
 if st.sidebar.button("Sign Out"):
-    st.write("Redirecting to sign-out...")
-    st.markdown(f'<meta http-equiv="refresh" content="0; url={logout_url}" />', unsafe_allow_html=True)
+    clear_session_and_logout()
 
 # Initialize S3 client using Streamlit secrets
 s3_client = boto3.client(
