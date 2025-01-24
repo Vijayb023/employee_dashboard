@@ -24,41 +24,25 @@ def clear_session_and_logout():
     st.cache_data.clear()  # Clear cached data
     st.cache_resource.clear()  # Clear cached resources
 
-    # JavaScript to perform a hard redirect
+    # Perform a hard redirect to the logout URI
+    st.write("Signing you out...")
+    st.stop()  # Stop Streamlit script execution
     js_redirect = f"""
         <script>
-            window.localStorage.clear();  // Clear any localStorage (optional for stored tokens)
-            window.sessionStorage.clear();  // Clear sessionStorage (optional for tokens)
-            window.location.replace("{logout_url}");
+            window.localStorage.clear();  // Optional: Clear local storage
+            window.sessionStorage.clear();  // Optional: Clear session storage
+            window.location.href = "{logout_uri}";
         </script>
     """
     st.markdown(js_redirect, unsafe_allow_html=True)
 
-# Initialize session state for the modal
-if "show_signout_modal" not in st.session_state:
-    st.session_state["show_signout_modal"] = False
-
-# Sign Out Popup Logic
-def show_sign_out_modal():
-    st.write("### Confirm Sign Out")
-    st.write("Are you sure you want to sign out? You will be redirected to the home page.")
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Yes, Sign Out"):
-            clear_session_and_logout()
-            st.stop()  # Stop Streamlit script execution
-    with col2:
-        if st.button("Cancel"):
-            st.session_state["show_signout_modal"] = False  # Hide the modal
+# Title and Description
+st.title("Sentiment Analysis App")
+st.write("This app analyzes sentiment from a JSON file stored in S3 and displays a donut chart.")
 
 # Sidebar Sign Out Button
 if st.sidebar.button("Sign Out"):
-    st.session_state["show_signout_modal"] = True
-
-# Render the modal if it's set to show
-if st.session_state["show_signout_modal"]:
-    st.write("## Sign Out Confirmation")
-    show_sign_out_modal()
+    clear_session_and_logout()
 
 # Initialize S3 client using Streamlit secrets
 s3_client = boto3.client(
