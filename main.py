@@ -9,8 +9,8 @@ from botocore.exceptions import ClientError
 # Cognito configuration
 logout_uri = "https://www.vijaypb.com/"  # Redirect URL after logout
 
-# Clear session, cache, and tokens, and redirect to the home page
-def clear_and_redirect():
+# Clear session, cache, and tokens
+def clear_session_and_cache():
     # Clear Streamlit session state
     for key in st.session_state.keys():
         del st.session_state[key]
@@ -19,25 +19,24 @@ def clear_and_redirect():
     st.cache_data.clear()
     st.cache_resource.clear()
 
-    # Redirect using st.markdown with a hard link
-    st.markdown(
-        f"""
-        <meta http-equiv="refresh" content="0; url={logout_uri}" />
-        <script>
-            window.location.href = "{logout_uri}";
-        </script>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.stop()  # Stop further execution after redirect
+    st.write("All tokens and cache have been cleared.")
 
 # Title and Description
 st.title("Sentiment Analysis App")
 st.write("This app analyzes sentiment from a JSON file stored in S3 and displays a donut chart.")
 
-# Add the "Go to Home Page" button
-if st.sidebar.button("Go to Home Page"):
-    clear_and_redirect()
+# Sidebar Link Button
+st.sidebar.header("Actions")
+if st.sidebar.button("Clear Tokens and Cache"):
+    clear_session_and_cache()
+
+# Add a link button to redirect to `https://www.vijaypb.com/`
+st.sidebar.link_button(
+    label="Go to Home Page",
+    url=logout_uri,
+    help="Click to go to the home page",
+    type="primary",  # Style as a primary button
+)
 
 # Initialize S3 client using Streamlit secrets
 s3_client = boto3.client(
