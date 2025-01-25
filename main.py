@@ -21,7 +21,7 @@ def clear_session_and_cache():
 
     st.write("All tokens and cache have been cleared.")
 
-# Generate a styled logout link
+# Generate a styled logout link with iframe-breaking redirect
 def styled_logout_button():
     logout_html = f"""
     <style>
@@ -34,14 +34,20 @@ def styled_logout_button():
             font-size: 16px;
             border-radius: 5px;
             text-align: center;
+            cursor: pointer;
         }}
         .logout-btn:hover {{
             background-color: #D43F3F;
         }}
     </style>
-    <a href="{logout_uri}" class="logout-btn" target="_self" onclick="localStorage.clear(); sessionStorage.clear();">
-        Sign Out
-    </a>
+    <script>
+        function signOut() {{
+            localStorage.clear();
+            sessionStorage.clear();
+            window.top.location.href = "{logout_uri}"; // Redirect breaks out of iframe
+        }}
+    </script>
+    <button class="logout-btn" onclick="signOut()">Sign Out</button>
     """
     st.sidebar.markdown(logout_html, unsafe_allow_html=True)
 
