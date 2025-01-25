@@ -37,9 +37,9 @@ s3_client = boto3.client(
     aws_secret_access_key=st.secrets["my_aws_secret"]
 )
 
-# Cache the function to fetch and process data from S3
+# Cache the function to fetch and process data from S3 with a cache key
 @st.cache_data
-def fetch_feedback_data():
+def fetch_feedback_data(last_modified_time):
     # Fetch the object from S3
     response = s3_client.get_object(Bucket=st.secrets["bucket_name"], Key="feedback_updated.json")
 
@@ -70,8 +70,12 @@ def fetch_feedback_data():
     return feedback_data
 
 try:
-    # Fetch and process the data
-    feedback_data = fetch_feedback_data()
+    # Get the last modified time of the file from S3
+    response = s3_client.head_object(Bucket=st.secrets["bucket_name"], Key="feedback_updated.json")
+    last_modified_time = response["LastModified"]
+
+    # Fetch and process the data with cache invalidation based on last modified time
+    feedback_data = fetch_feedback_data(last_modified_time)
 
     # Sentiment Counts
     sentiment_counts = feedback_data["Sentiment"].value_counts()
