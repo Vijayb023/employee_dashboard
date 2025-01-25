@@ -21,12 +21,13 @@ st.write("This app analyzes sentiment from a JSON file stored in S3 and displays
 # Sidebar Actions
 st.sidebar.header("Actions")
 
-# Add a page link for sign-out
+# Add a page link for sign-out using AWS Cognito
 st.sidebar.page_link(
+    page=logout_url,
     label="Sign Out",
-    url=logout_url,
-    help="Log out using AWS Cognito",
-    type="primary"
+    icon=":material/logout:",
+    help="Click to log out using AWS Cognito",
+    use_container_width=True
 )
 
 # Initialize S3 client using Streamlit secrets
